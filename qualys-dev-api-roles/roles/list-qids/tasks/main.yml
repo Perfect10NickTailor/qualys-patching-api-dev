@@ -1,0 +1,24 @@
+- name: Get VM detections for specified IP address
+  uri:
+    url: https://qualysguard.qg3.apps.qualys.com/api/2.0/fo/asset/host/vm/detection/?action=list&ips={{ host_ip }}&output_format=CSV_NO_METADATA
+    method: GET
+    headers:
+      X-Requested-With: Curl
+      Authorization: "{{ auth_header }}"
+    return_content: yes
+  register: response
+
+- name: Extract QID and Results from CSV
+  debug:
+    msg:
+      - "QID: {{ item.0 }}"
+      - "Results: {{ item.1 }}"
+  loop: "{{ response.content | community.general.from_csv | json_query('[*].[QID, Results]') }}"
+
+
+
+
+
+
+
+

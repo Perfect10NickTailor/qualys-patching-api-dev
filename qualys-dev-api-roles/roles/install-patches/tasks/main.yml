@@ -1,0 +1,24 @@
+
+---
+- name: Connect to Patch Manager Plus using Auth API
+  uri:
+    url: "https://{{ patch_manager_plus_host }}/api/1.3/desktop/authentication?username={{ username }}&password={{ password_base64_encoded }}&auth_type=local_authentication"
+    method: GET
+    validate_certs: no
+  register: auth_result
+
+- name: Install patches using API
+  uri:
+    url: "https://{{ patch_manager_plus_host }}/api/1.3/patch/installpatch"
+    method: POST
+    headers:
+      Content-Type: "application/json"
+      Authorization: "Bearer {{ auth_result.json.Token }}"
+    body: '{"PatchIDs": {{ patch_ids }}, "ConfigName": "{{ config_name }}", "ConfigDescription": "{{ config_description }}", "actionToPerform": "{{ action_to_perform }}", "DeploymentPolicyTemplateID": {{ deployment_policy_template_id }} }'
+    body_format: json
+    validate_certs: no
+  register: patch_installation_result
+
+- name: Display patch installation result
+  debug:
+    var: patch_installation_result

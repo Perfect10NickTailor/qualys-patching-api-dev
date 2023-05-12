@@ -1,0 +1,82 @@
+- name: Retrieve Qualys auth token
+  uri:
+    url: "https://gateway.qg3.apps.qualys.com/auth"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      "username={{qualys_username}}&password={{qualys_password}}&token=true&permissions=true"
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+    validate_certs: no
+    return_content: true
+    status_code: 201
+  register: auth_token
+
+- name: Set Qualys auth token as fact
+  set_fact:
+    qualys_auth_token: "{{ auth_token.content }}"
+
+- debug:
+    var: qualys_auth_token
+
+
+- name: Create Qualys deployment job
+  uri:
+    url: "https://gateway.qg3.apps.qualys.com/pm/v1/deploymentjob"
+    method: POST
+    headers:
+      accept: "application/json"
+      Authorization: "Bearer {{ qualys_auth_token }}"
+    body:
+      name: "This is a test job"
+      description: "Created via public API"
+      approvedPatches:
+        - "3800b89a-7238-3ceb-9237-905e94451a0b"
+        - "a8d60f94-a721-3455-9e5e-934ef53f2160"
+      assetTagIds:
+        - "976d805d-855f-4aa7-8713-b44463f7d081"
+      filterType: "Any"
+      exclusionAssetIds:
+        - "e52de00f-8631-4dd5-9ff7-622f3e8d698d"
+      exclusionFilterType: "Any"
+      exclusionTagIds:
+        - "22dcb264-9c2a-4d78-bc55-376396b68a08"
+      coAuthorUserIds:
+        - "568be9b8-cbbb-47bf-8132-e4f3c2c46e6c"
+      preDeployment: null
+      duringDeployment:
+        description: "During deployment Description"
+        userMessage: "During deployment userMessage"
+      postDeployment:
+        onComplete:
+          description: "On complete Description"
+          userMessage: "On complete userMessage"
+        rebootCountdown:
+          interval: 15
+          intervalUnit: "MINUTES"
+          userMessage: "Reboot Countdown usermessage"
+          description: "Reboot Countdown description"
+        rebootOption:
+          deferment:
+            count: 3
+            interval: 1
+            intervalUnit: "HOURS"
+          description: "rebootOption description"
+          userMessage: "rebootOption user message"
+        suppressReboots: true
+      platform: "Windows"
+      minimizeWindow: "true"
+      type: "Install"
+      status: "Disabled"
+      timeout: 6
+      timeoutUnit: "HOURS"
+      recurring: false
+      scheduleType: "On-demand"
+      opportunisticDownloads: false
+    body_format: json
+  register: response
+
+- name: Print response
+  debug:
+    var: response.json
+

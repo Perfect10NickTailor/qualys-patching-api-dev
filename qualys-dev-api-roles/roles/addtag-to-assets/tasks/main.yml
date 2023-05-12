@@ -1,0 +1,23 @@
+- name: Update XML payload with each ID
+  set_fact:
+    xml_payload: "{{ xml_payload | replace('<id>40261618</id>', '<id>' ~ item ~ '</id>') }}"
+  loop: "{{ ids }}"
+
+
+- name: Send XML payload to API for each host ID
+  uri:
+    url: "https://qualysapi.qg3.apps.qualys.com/qps/rest/2.0/update/am/hostasset/{{ item }}"
+    method: POST
+    headers:
+      content-type: "text/xml"
+      # Authorization: "Basic {{ (username + ':' + password) | b64encode }}"
+      Authorization: "{{ auth_header }}"
+    body_format: raw
+    body: "{{ xml_payload }}"
+    return_content: true
+  loop: "{{ host_ids }}"
+  register: response
+
+- name: Print response
+  debug:
+    var: response

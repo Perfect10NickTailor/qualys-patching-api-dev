@@ -1,0 +1,20 @@
+- name: Retrieve Qualys auth token
+  uri:
+    url: "https://gateway.qg3.apps.qualys.com/auth"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      "username={{qualys_username}}&password={{qualys_password}}&token=true&permissions=true"
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+    validate_certs: no
+    return_content: true
+    status_code: 201
+  register: auth_token
+
+- name: Set Qualys auth token as fact
+  set_fact:
+    qualys_auth_token: "{{ auth_token.content }}"
+
+- debug:
+    var: qualys_auth_token

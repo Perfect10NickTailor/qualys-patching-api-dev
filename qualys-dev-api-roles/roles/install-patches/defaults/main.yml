@@ -1,0 +1,9 @@
+patch_manager_plus_host: "https://patchmanagerplus.example.com"
+username: "admin"
+password: "password"
+password_base64_encoded: "{{ password | b64encode }}"
+patch_ids: [103980]
+config_name: "API install patch test1"
+config_description: "API test"
+action_to_perform: "Deploy"
+deployment_policy_template_id: 1

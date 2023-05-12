@@ -1,0 +1,21 @@
+- name: Pull Tag Id's
+  uri:
+    url: "https://qualysapi.qg3.apps.qualys.com/qps/rest/2.0/search/am/tag"
+    method: POST
+    headers:
+      content-type: "text/xml"
+      # Authorization: "Basic {{ (username + ':' + password) | b64encode }}"
+      Authorization: "{{ auth_header }}"
+    body_format: raw
+    body: "{{ xml_payload }}"
+    return_content: true
+  register: response
+
+- name: Print response
+  debug:
+    var: "{{ response.content | regex_findall('<id>(\\d+)</id>\\s*<name>([^<]+)</name>') }}"
+
+
+
+
+
